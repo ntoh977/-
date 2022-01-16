@@ -1,0 +1,25 @@
+
+<?php
+
+
+if(!isset($_COOKIE['userId']))
+{
+
+$userId= rand(1000,99999) ."-".time();
+
+setCookie("userId",$userId,time()+31536000,"/");
+}
+
+$ip = $_SERVER['REMOTE_ADDR'];
+
+$mysql = mysqli_connect('localhost', 'root', '', 'test');
+mysqli_query($mysql,"REPLACE INTO `guest` VALUE('".$_COOKIE['userId']."','".time()."','".$_SERVER['REQUEST_URI']. "','".$_SERVER['REMOTE_ADDR']."')");
+$res = mysqli_query($mysql, "SELECT * FROM `guest` WHERE `time`> ".(time()-60*15));
+$count = mysqli_num_rows($res);
+
+echo "Online:" . $count . "<br>";
+
+$row=$res->fetch_array(MYSQLI_ASSOC);
+ 
+
+echo $row['userId']. $ip ." time: ". date('H:i:s d.m.Y',$row['time']) . " url:<a href=\'".$row['url']."\'>".$row['url']."</a>";
